@@ -1,0 +1,40 @@
+package main
+
+import (
+	"encoding/json"
+	"io"
+	"net/http"
+)
+
+const contentType = "application/json; charset=utf-8"
+
+func encodeJSONResp(w http.ResponseWriter, data interface{}, code int) {
+	w.Header().Set("Content-Type", contentType)
+	w.WriteHeader(code)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func encodeJSONError(w http.ResponseWriter, err error, statusCode int) {
+	m := struct {
+		Error string `json:"error"`
+		Code  string `json:"code,omitempty"`
+	}{}
+	m.Error = err.Error()
+
+	encodeJSONResp(w, m, statusCode)
+}
+
+func decodeJSONReq(r *http.Request, in interface{}) error {
+	reqBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(reqBody, in)
+	if err != nil {
+		return err
+	}
+	return nil
+}
