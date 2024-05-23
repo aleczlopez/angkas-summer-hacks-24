@@ -26,6 +26,7 @@ type Heatmap struct {
 }
 
 func getHeatMap(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	var lat float64
 	var long float64
 	var err error
@@ -90,21 +91,7 @@ func getHeatMap(w http.ResponseWriter, r *http.Request) {
 }
 
 func cluster(lat float64, long float64, d clusters.PointList) (map[string][]Heatmap, error) {
-	// var dfinal clusters.PointList
 	origin := haversine.Coord{Lat: lat, Lon: long}
-
-	// if lat != 0 && long != 0 {
-	// 	for _, p := range d {
-	// 		pc := haversine.Coord{Lat: p.Lat(), Lon: p.Lon()}
-	// 		_, pckm := haversine.Distance(origin, pc)
-	// 		println(pckm)
-	// 		if pckm < 5 {
-	// 			dfinal = append(dfinal, p)
-	// 		}
-	// 	}
-	// } else {
-	// 	dfinal = d
-	// }
 
 	dbCluster, _ := dbscan.DBScan(d, 1.5, 10)
 
